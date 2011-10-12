@@ -52,14 +52,6 @@ def find_mask(path):
     #print files[0][pos:pos + length]
     return (pos, length)
 
-    #match_count = 0
-    #for i in xrange(1, len(files)):
-    #    match = re.search(r".*(0*{0}).*".format(i), files[i])
-    #    if match:
-    #        print "{0} {1} {2} {3}".format(i, match.group(0), match.group(1), match.pos)
-    #        match_count += 1
-    #print match_count
-
 
 def is_first_run():
     # FIXME: how we do it?
@@ -78,19 +70,64 @@ def parse_args():
     argv = sys.argv[1:]
 
 
-def s_play(path, player="mplayer2"):
-    """Запускает mplayer для проигрывания файла"""
-    #sp.Popen([player, path])
-    sp.call([player, path])
+def construct_filename_dd_re(series, files):
+    re_comp = re.compile(r'0*' + str(series) + r'\D+')
+
+    path = [re_comp.match(i) for i in files if (re_comp.match(i) is not None and i.split('.')[-1] in extensions)][0].group()
+    return path
 
 
-def s_play_series(series):
+def construct_filename_find_diff(series):
+    """
+    Конструируем имя файла на основе поиска разницы.
+    Работает для случаев вроде:
+    Bla-bla - 01 tra-la-la.mkv
+    Bla-bla - 02 tra-la-la.mkv
+    """
     # определяем имя файла для 1-й серии (это будет базовое имя файла)
     path = find_file(r'.*0*{0}.*'.format(1))
     # определяем позицию и длину подстроки, отвечающей за номер серии
     (pos, length) = find_mask(os.getcwd())
     # конструируем имя файла для нужной нам серии
     path = path[0:pos] + str(series).zfill(length) + path[pos + length:]
+    return path
+
+
+# def construct_filename(series):
+#     ls = os.listdir(os.getcwd())
+#     num_re = re.compile(r'.*0*?' + series + '.*')
+#     print ls[0]
+#     print [i for i in ls if num_re.match(i)]
+#     return path
+
+
+def construct_filename(series):
+    path = ""
+    cwd = os.getcwd()
+    # 1. First method
+    try:
+        path = os.path.join(cwd, construct_filename_dd_re(int(series), os.listdir(cwd)))
+    except IndexError:
+        pass
+
+    if path:
+        print path
+        return path
+    else:
+        # 2. Second method (difference-based)
+        path = construct_filename_find_diff(series)
+        if path:
+            return path
+
+
+def s_play(path, player="mplayer2"):
+    """Запускает mplayer для проигрывания файла"""
+    sp.call([player, path])
+
+
+def s_play_series(series):
+    # конструируем имя файла (включая полный путь)
+    path = construct_filename(series)
     # запускаем плейер
     try:
         os.stat(path)
