@@ -20,8 +20,12 @@ class Serial():
         self.cwd = os.getcwd()
 
         if series is None and action == 'play':
-            self.series = self._get_series_from_db()
+            try:
+                self.series = self._get_series_from_db()
+            except ConfigParser.NoOptionError:
+                self.series = 1
             self._s_play_series(self.series)
+            self._save_series_to_db()
         elif action == 'play':
             self.series = series
             self._s_play_series(self.series)
