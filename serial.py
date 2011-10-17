@@ -168,7 +168,11 @@ def get_series_from_db():
 def save_series_to_db(series):
     import random
     config = ConfigParser.RawConfigParser()
-    config.add_section('Main')
+    config.read(CONFIG_FILE)
+    try:
+        config.add_section('Main')
+    except ConfigParser.DuplicateSectionError:
+        pass
     config.set('Main', os.getcwd(), series)
     with open(CONFIG_FILE, 'wb') as config_file:
         config.write(config_file)
