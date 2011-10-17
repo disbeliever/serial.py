@@ -6,9 +6,11 @@ import os
 import sys
 import subprocess as sp
 import re
+import ConfigParser
 
 
 extensions = ["avi", "mkv", "mp4", "mpg"]
+CONFIG_FILE = os.path.expanduser("~/.serial.py.conf")
 
 
 def switch_bool(x):
@@ -46,11 +48,15 @@ def find_diff(str1, str2):
 def find_mask(path):
     files = [i for i in os.listdir(path) if i.split('.')[-1] in extensions]
     files.sort()
-    diff = find_diff(files[0], files[1])
-    #print diff
-    (pos, length) = (diff[0], diff[1])
-    #print files[0][pos:pos + length]
-    return (pos, length)
+    try:
+        diff = find_diff(files[0], files[1])
+        #print diff
+        (pos, length) = (diff[0], diff[1])
+        #print files[0][pos:pos + length]
+        return (pos, length)
+    except IndexError:
+        print "[error]: Something wrong with indices in find_mask()"
+        sys.exit(1)
 
 
 def is_first_run():
@@ -109,6 +115,8 @@ def construct_filename(series):
         path = os.path.join(cwd, construct_filename_dd_re(int(series), os.listdir(cwd)))
     except IndexError:
         pass
+    except TypeError:
+        pass
 
     if path:
         print path
@@ -146,10 +154,30 @@ def s_next():
     pass
 
 
+def get_series_from_db():
+    config = ConfigParser.RawConfigParser()
+    config.read(CONFIG_FILE)
+
+    try:
+        series = config.getint('Main', os.getcwd())
+    except ConfigParser.NoSectionError:
+        series = 1 
+    return series
+
+
+def save_series_to_db(series):
+    import random
+    config = ConfigParser.RawConfigParser()
+    config.add_section('Main')
+    config.set('Main', os.getcwd(), series)
+    with open(CONFIG_FILE, 'wb') as config_file:
+        config.write(config_file)
+
+
 def main():
     #actions = {
     #    "play": s_play,
-    #    "next": s_next}
+    #    "next": s_next }
 
     #action = "play"
 
@@ -157,15 +185,30 @@ def main():
         (opts, args) = getopt.getopt(sys.argv[1:], "h", ["help"])
     except:
         usage()
-    if len(args) == 1:
-        series = args[0]
+    if len(args) == 0:
+        series = get_series_from_db()
+    elif len(args) == 1:
+        if args[0].isdigit():
+            series = args[0]
+        elif args[0] == 'play':
+            series = get_series_from_db()
+            save_series_to_db(series)
+        elif args[0] == 'next':
+            series = get_series_from_db() + 1
+            save_series_to_db(series)
+    elif len(args) == 2:
+        if args[0] == 'set':
+            series = args[1]
+            save_series_to_db(series)
     else:
-        series = 1
+        print len(args)
+        print "error"
+        return 1
 
-    if is_first_run():
-        s_play_first()
-    else:
-        s_play_series(series)
+    # if is_first_run():
+    #     s_play_first()
+    # else:
+    s_play_series(series)
 
 
 if __name__ == "__main__":
