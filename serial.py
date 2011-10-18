@@ -18,6 +18,9 @@ class Serial():
     def __init__(self, action, series=0):
         self.config = ConfigParser.RawConfigParser()
         self.cwd = os.getcwd()
+        self.files = [i for i in os.listdir(self.cwd)
+                      if i.split('.')[-1].lower() in extensions]
+        self.files.sort()
 
         if series is None and action == 'play':
             try:
@@ -72,7 +75,9 @@ class Serial():
 
     def _s_play_series(self, series):
         # конструируем имя файла (включая полный путь)
-        path = os.path.join(self.cwd, construct_filename(series))
+        #path = os.path.join(self.cwd, construct_filename(series))
+        constructor = Constructor(self.files, series)
+        path = os.path.join(self.cwd, constructor.construct(series))
         # запускаем плейер
         try:
             os.stat(path)
@@ -92,7 +97,8 @@ class Constructor():
     def construct(self, series):
         self.series = series
         # 1st method
-        file_name = self._construct_filename_find_diff()
+        #file_name = self._construct_filename_find_diff()
+        file_name = self._construct_diff_with_re()
         if file_name in self.files:
             return file_name
         # 2nd method
@@ -111,6 +117,27 @@ class Constructor():
                      if (re_comp.match(i) is not None
                          and i.split('.')[-1] in extensions)][0].group()
         return file_name
+
+    def _construct_diff_with_re(self):
+        try:
+            #basename = cmp_str(self.files[self.series / 10 * 10],
+            #                   self.files[self.series / 10 * 10 - 1])
+            basename = cmp_str(self.files[0],
+                               self.files[1])
+        except:
+            basename = cmp_str(self.files[self.series],
+                               self.files[self.series + 1])
+        regexp_string = '{0}{1}.*'.format(re.escape(basename.rstrip('0')), str(self.series).zfill(2))
+        regexp = re.compile(regexp_string)
+        file_name = filter(lambda x: regexp.match(x), self.files)[0]
+        #except IndexError:
+        #    return None
+        #except TypeError:
+        #    return None
+        if file_name in self.files:
+            return file_name
+        else:
+            return None
 
     def _construct_filename_find_diff(self):
         """
@@ -164,6 +191,25 @@ class Constructor():
         (pos, length) = (diff[0], diff[1])
         #print files[0][pos:pos + length]
         return (pos, length)
+
+
+def cmp_str(str1, str2):
+    """Находим общую часть в строках"""
+    x = ''
+    prev_match = True
+    for i in xrange(0, len(str1)):
+        if str1[i] == str2[i] and prev_match == True:
+            x += str1[i]
+        else:
+            prev_match = False
+    return x
+
+
+def construct_diff_with_re(series, files):
+    basename = cmp_str(files[0], files[1])
+    regexp = re.compile('{0}{1}.*'.format(re.escape(basename), series))
+    result = filter(lambda x: regexp.match(x), files)[0]
+    return result
 
 
 def switch_bool(x):
@@ -373,7 +419,7 @@ def main():
         print "error"
         return 1
 
-    serial = Serial(action, series)
+    serial = Serial(action, int(series))
 
 if __name__ == "__main__":
     sys.exit(main())
