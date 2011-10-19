@@ -23,10 +23,7 @@ class Serial():
         self.files.sort()
 
         if series == 0 and action == 'play':
-            try:
-                self.series = self._get_series_from_db()
-            except ConfigParser.NoOptionError:
-                self.series = 1
+            self.series = self._get_series_from_db()
             self._s_play_series(self.series)
             self._save_series_to_db()
         elif action == 'play':
@@ -59,6 +56,8 @@ class Serial():
         try:
             series = self.config.getint('Main', self.cwd)
         except ConfigParser.NoSectionError:
+            series = 1
+        except ConfigParser.NoOptionError:
             series = 1
         return series
 
@@ -123,14 +122,13 @@ class Constructor():
 
     def _construct_diff_with_re(self):
         try:
-            #basename = cmp_str(self.files[self.series / 10 * 10],
-            #                   self.files[self.series / 10 * 10 - 1])
             basename = cmp_str(self.files[0],
                                self.files[1])
         except:
             basename = cmp_str(self.files[self.series],
                                self.files[self.series + 1])
-        regexp_string = '{0}{1}.*'.format(re.escape(basename.rstrip('0')), str(self.series).zfill(2))
+        regexp_string = '{0}{1}.*'.format(re.escape(basename.rstrip('0')),
+                                          str(self.series).zfill(2))
         regexp = re.compile(regexp_string)
         file_name = filter(lambda x: regexp.match(x), self.files)[0]
         #except IndexError:
@@ -190,9 +188,7 @@ class Constructor():
         files.sort()
 
         diff = find_diff(files[0], files[1])
-        #print diff
         (pos, length) = (diff[0], diff[1])
-        #print files[0][pos:pos + length]
         return (pos, length)
 
 
@@ -303,14 +299,6 @@ def construct_filename_find_diff(series):
     return path
 
 
-# def construct_filename(series):
-#     ls = os.listdir(os.getcwd())
-#     num_re = re.compile(r'.*0*?' + series + '.*')
-#     print ls[0]
-#     print [i for i in ls if num_re.match(i)]
-#     return path
-
-
 def construct_filename(series):
     path = ""
     cwd = os.getcwd()
@@ -385,12 +373,6 @@ def save_series_to_db(series):
 
 
 def main():
-    #actions = {
-    #    "play": s_play,
-    #    "next": s_next }
-
-    #action = "play"
-
     try:
         (opts, args) = getopt.getopt(sys.argv[1:], "h", ["help"])
     except:
@@ -404,19 +386,14 @@ def main():
             action = 'play'
             series = args[0]
         elif args[0] == 'play':
-            #series = get_series_from_db()
-            #save_series_to_db(series)
             action = 'play'
             series = 1
         elif args[0] == 'next':
-            #series = get_series_from_db() + 1
-            #save_series_to_db(series)
             series = 0
             action = 'next'
     elif len(args) == 2:
         if args[0] == 'set':
             series = args[1]
-            #save_series_to_db(series)
             action = 'set'
     else:
         print len(args)
