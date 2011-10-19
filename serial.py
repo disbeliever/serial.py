@@ -22,7 +22,7 @@ class Serial():
                       if i.split('.')[-1].lower() in extensions]
         self.files.sort()
 
-        if series is None and action == 'play':
+        if series == 0 and action == 'play':
             try:
                 self.series = self._get_series_from_db()
             except ConfigParser.NoOptionError:
@@ -36,7 +36,10 @@ class Serial():
             self._get_series_from_db()
             self._s_play_series(self.series)
         elif action == 'next':
-            self.series = self._get_series_from_db() + 1
+            try:
+                self.series = self._get_series_from_db() + 1
+            except ConfigParser.NoOptionError:
+                self.series = 1
             self._s_play_series(self.series)
             self._save_series_to_db()
         elif action == 'set':
@@ -394,7 +397,7 @@ def main():
         usage()
 
     if len(args) == 0:
-        series = None
+        series = 0
         action = 'play'
     elif len(args) == 1:
         if args[0].isdigit():
@@ -404,10 +407,11 @@ def main():
             #series = get_series_from_db()
             #save_series_to_db(series)
             action = 'play'
+            series = 1
         elif args[0] == 'next':
             #series = get_series_from_db() + 1
             #save_series_to_db(series)
-            series = None
+            series = 0
             action = 'next'
     elif len(args) == 2:
         if args[0] == 'set':
