@@ -15,34 +15,34 @@ CONFIG_FILE = os.path.expanduser("~/.serial.py.conf")
 
 class Serial():
 
-    def __init__(self, action, series=0):
+    def __init__(self, action, episode=0):
         self.config = ConfigParser.RawConfigParser()
         self.cwd = os.getcwd()
         self.files = [i for i in os.listdir(self.cwd)
                       if i.split('.')[-1].lower() in extensions]
         self.files.sort()
 
-        if series == 0 and action == 'play':
-            self.series = self._get_series_from_db()
-            self._s_play_series(self.series)
-            self._save_series_to_db()
+        if episode == 0 and action == 'play':
+            self.episode = self._get_episode_from_db()
+            self._s_play_episode(self.episode)
+            self._save_episode_to_db()
         elif action == 'play':
-            self.series = series
-            self._s_play_series(self.series)
-        elif action == 'play' and series == 0:
-            self._get_series_from_db()
-            self._s_play_series(self.series)
+            self.episode = episode
+            self._s_play_episode(self.episode)
+        elif action == 'play' and episode == 0:
+            self._get_episode_from_db()
+            self._s_play_episode(self.episode)
         elif action == 'next':
             try:
-                self.series = self._get_series_from_db() + 1
+                self.episode = self._get_episode_from_db() + 1
             except ConfigParser.NoOptionError:
-                self.series = 1
-            self._s_play_series(self.series)
-            self._save_series_to_db()
+                self.episode = 1
+            self._s_play_episode(self.episode)
+            self._save_episode_to_db()
         elif action == 'set':
-            self.series = series
-            self._s_play_series(self.series)
-            self._save_series_to_db()
+            self.episode = episode
+            self._s_play_episode(self.episode)
+            self._save_episode_to_db()
 
     def action_play(self):
         pass
@@ -50,24 +50,24 @@ class Serial():
     def action_next(self):
         pass
 
-    def _get_series_from_db(self):
+    def _get_episode_from_db(self):
         self.config.read(CONFIG_FILE)
 
         try:
-            series = self.config.getint('Main', self.cwd)
+            episode = self.config.getint('Main', self.cwd)
         except ConfigParser.NoSectionError:
-            series = 1
+            episode = 1
         except ConfigParser.NoOptionError:
-            series = 1
-        return series
+            episode = 1
+        return episode
 
-    def _save_series_to_db(self):
+    def _save_episode_to_db(self):
         self.config.read(CONFIG_FILE)
         try:
             self.config.add_section('Main')
         except ConfigParser.DuplicateSectionError:
             pass
-        self.config.set('Main', self.cwd, self.series)
+        self.config.set('Main', self.cwd, self.episode)
         with open(CONFIG_FILE, 'wb') as config_file:
             self.config.write(config_file)
 
@@ -75,29 +75,29 @@ class Serial():
         """Запускает mplayer для проигрывания файла"""
         sp.call([player, path])
 
-    def _s_play_series(self, series):
+    def _s_play_episode(self, episode):
         # конструируем имя файла (включая полный путь)
-        #path = os.path.join(self.cwd, construct_filename(series))
-        constructor = Constructor(self.files, series)
-        path = os.path.join(self.cwd, constructor.construct(series))
+        #path = os.path.join(self.cwd, construct_filename(episode))
+        constructor = Constructor(self.files, episode)
+        path = os.path.join(self.cwd, constructor.construct(episode))
         # запускаем плейер
         try:
             os.stat(path)
             s_play(path)
         except OSError, e:
             #print "File not found: {0}".format(path)
-            print "Series {0} isn't here :(".format(series)
+            print "Episode {0} isn't here :(".format(episode)
             #return 1
 
 
 class Constructor():
 
-    def __init__(self, files, series=0):
+    def __init__(self, files, episode=0):
         self.files = files
-        self.series = series
+        self.episode = episode
 
-    def construct(self, series):
-        self.series = series
+    def construct(self, episode):
+        self.episode = episode
         # 1st method
         #file_name = self._construct_filename_find_diff()
         file_name = self._construct_diff_with_re()
@@ -114,7 +114,7 @@ class Constructor():
             return file_name
 
     def _construct_filename_dd_re(self):
-        re_comp = re.compile(r'0*' + str(self.series) + r'\D+')
+        re_comp = re.compile(r'0*' + str(self.episode) + r'\D+')
         file_name = [re_comp.match(i) for i in self.files
                      if (re_comp.match(i) is not None
                          and i.split('.')[-1] in extensions)][0].group()
@@ -125,10 +125,10 @@ class Constructor():
             basename = cmp_str(self.files[0],
                                self.files[1])
         except:
-            basename = cmp_str(self.files[self.series],
-                               self.files[self.series + 1])
+            basename = cmp_str(self.files[self.episode],
+                               self.files[self.episode + 1])
         regexp_string = '{0}{1}.*'.format(re.escape(basename.rstrip('0')),
-                                          str(self.series).zfill(2))
+                                          str(self.episode).zfill(2))
         regexp = re.compile(regexp_string)
         file_name = filter(lambda x: regexp.match(x), self.files)[0]
         #except IndexError:
@@ -155,7 +155,7 @@ class Constructor():
             return None
         # конструируем имя файла для нужной нам серии
         path = ''.join([path[0:pos],
-                        str(self.series).zfill(length),
+                        str(self.episode).zfill(length),
                         path[pos + length:]])
         return path
 
@@ -204,9 +204,9 @@ def cmp_str(str1, str2):
     return x
 
 
-def construct_diff_with_re(series, files):
+def construct_diff_with_re(episode, files):
     basename = cmp_str(files[0], files[1])
-    regexp = re.compile('{0}{1}.*'.format(re.escape(basename), series))
+    regexp = re.compile('{0}{1}.*'.format(re.escape(basename), episode))
     result = filter(lambda x: regexp.match(x), files)[0]
     return result
 
@@ -220,7 +220,7 @@ def switch_bool(x):
 
 
 def usage():
-    print "Usage: serial.py [series]"
+    print "Usage: serial.py [episode]"
     sys.exit(1)
 
 
@@ -274,8 +274,8 @@ def parse_args():
     argv = sys.argv[1:]
 
 
-def construct_filename_dd_re(series, files):
-    re_comp = re.compile(r'0*' + str(series) + r'\D+')
+def construct_filename_dd_re(episode, files):
+    re_comp = re.compile(r'0*' + str(episode) + r'\D+')
 
     path = [re_comp.match(i) for i in files
             if (re_comp.match(i) is not None and
@@ -283,7 +283,7 @@ def construct_filename_dd_re(series, files):
     return path
 
 
-def construct_filename_find_diff(series):
+def construct_filename_find_diff(episode):
     """
     Конструируем имя файла на основе поиска разницы.
     Работает для случаев вроде:
@@ -295,17 +295,17 @@ def construct_filename_find_diff(series):
     # определяем позицию и длину подстроки, отвечающей за номер серии
     (pos, length) = find_mask(os.getcwd())
     # конструируем имя файла для нужной нам серии
-    path = path[0:pos] + str(series).zfill(length) + path[pos + length:]
+    path = path[0:pos] + str(episode).zfill(length) + path[pos + length:]
     return path
 
 
-def construct_filename(series):
+def construct_filename(episode):
     path = ""
     cwd = os.getcwd()
     # 1. First method
     try:
         path = os.path.join(cwd,
-                            construct_filename_dd_re(int(series),
+                            construct_filename_dd_re(int(episode),
                                                      os.listdir(cwd)))
     except IndexError:
         pass
@@ -317,7 +317,7 @@ def construct_filename(series):
         return path
     else:
         # 2. Second method (difference-based)
-        path = construct_filename_find_diff(series)
+        path = construct_filename_find_diff(episode)
         if path:
             return path
 
@@ -327,39 +327,39 @@ def s_play(path, player="mplayer2"):
     sp.call([player, path])
 
 
-def s_play_series(series):
+def s_play_episode(episode):
     # конструируем имя файла (включая полный путь)
-    path = construct_filename(series)
+    path = construct_filename(episode)
     # запускаем плейер
     try:
         os.stat(path)
         s_play(path)
     except OSError, e:
         #print "File not found: {0}".format(path)
-        print "Series {0} isn't here :(".format(series)
+        print "Episode {0} isn't here :(".format(episode)
         #return 1
 
 
 def s_play_first():
-    s_play_series(1)
+    s_play_episode(1)
 
 
 def s_next():
     pass
 
 
-def get_series_from_db():
+def get_episode_from_db():
     config = ConfigParser.RawConfigParser()
     config.read(CONFIG_FILE)
 
     try:
-        series = config.getint('Main', os.getcwd())
+        episode = config.getint('Main', os.getcwd())
     except ConfigParser.NoSectionError:
-        series = 1
-    return series
+        episode = 1
+    return episode
 
 
-def save_series_to_db(series):
+def save_episode_to_db(episode):
     import random
     config = ConfigParser.RawConfigParser()
     config.read(CONFIG_FILE)
@@ -367,7 +367,7 @@ def save_series_to_db(series):
         config.add_section('Main')
     except ConfigParser.DuplicateSectionError:
         pass
-    config.set('Main', os.getcwd(), series)
+    config.set('Main', os.getcwd(), episode)
     with open(CONFIG_FILE, 'wb') as config_file:
         config.write(config_file)
 
@@ -379,28 +379,28 @@ def main():
         usage()
 
     if len(args) == 0:
-        series = 0
+        episode = 0
         action = 'play'
     elif len(args) == 1:
         if args[0].isdigit():
             action = 'play'
-            series = args[0]
+            episode = args[0]
         elif args[0] == 'play':
             action = 'play'
-            series = 1
+            episode = 1
         elif args[0] == 'next':
-            series = 0
+            episode = 0
             action = 'next'
     elif len(args) == 2:
         if args[0] == 'set':
-            series = args[1]
+            episode = args[1]
             action = 'set'
     else:
         print len(args)
         print "error"
         return 1
 
-    serial = Serial(action, int(series))
+    serial = Serial(action, int(episode))
 
 if __name__ == "__main__":
     sys.exit(main())
