@@ -33,10 +33,7 @@ class Serial():
             self._get_episode_from_db()
             self._s_play_episode(self.episode)
         elif action == 'next':
-            try:
-                self.episode = self._get_episode_from_db() + 1
-            except ConfigParser.NoOptionError:
-                self.episode = 1
+            self.episode = self._get_episode_from_db() + 1
             self._s_play_episode(self.episode)
             self._save_episode_to_db()
         elif action == 'set':
@@ -77,9 +74,11 @@ class Serial():
 
     def _s_play_episode(self, episode):
         # конструируем имя файла (включая полный путь)
-        #path = os.path.join(self.cwd, construct_filename(episode))
-        constructor = Constructor(self.files, episode)
-        path = os.path.join(self.cwd, constructor.construct(episode))
+        try:
+            constructor = Constructor(self.files, episode)
+            path = os.path.join(self.cwd, constructor.construct(episode))
+        except IndexError:
+            path = ''
         # запускаем плейер
         try:
             os.stat(path)
@@ -87,7 +86,7 @@ class Serial():
         except OSError, e:
             #print "File not found: {0}".format(path)
             print "Episode {0} isn't here :(".format(episode)
-            #return 1
+            sys.exit(1)
 
 
 class Constructor():
