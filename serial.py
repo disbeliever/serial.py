@@ -34,6 +34,7 @@ class Serial():
             self._s_play_episode(self.episode)
         elif action == 'next':
             self.episode = self._get_episode_from_db() + 1
+            self.create_subtitle_symlink(self.episode)
             self._s_play_episode(self.episode)
             self._save_episode_to_db()
         elif action == 'set':
@@ -87,6 +88,25 @@ class Serial():
             #print "File not found: {0}".format(path)
             print "Episode {0} isn't here :(".format(episode)
             sys.exit(1)
+
+    def create_subtitle_symlink(self, episode):
+        cons = Constructor(self.files, episode)
+        filename = cons.construct(episode)
+        for roots, dirs, files in os.walk("."):
+            try:
+                subfile = ''.join(os.path.join(
+                    os.getcwd(), roots, filename).rsplit('.')[0:-1]) + \
+                '.ass'
+                if (os.stat(subfile)):
+                    os.symlink(subfile,
+                               os.path.join(os.getcwd(),
+                                            subfile.split(os.sep)[-1]))
+                    print "sub:", subfile
+                    #print os.path.join(os.getcwd, files)
+                    break
+                    #pass
+            except OSError:
+                pass
 
 
 class Constructor():
