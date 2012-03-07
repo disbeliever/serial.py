@@ -97,7 +97,7 @@ class Serial():
             try:
                 subfile = (''.join(os.path.join(roots, filename).rsplit('.')[0:-1]) + \
                 '.ass').replace('//', '/')[1:]
-                print os.path.join(subfile)
+                #print os.path.join(subfile)
                 if (os.stat(os.path.join(os.getcwd(), subfile))):
                     os.symlink(subfile,
                     os.path.join(subfile.split(os.sep)[-1]))
