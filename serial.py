@@ -41,12 +41,6 @@ class Serial():
             self._s_play_episode(self.episode)
             self._save_episode_to_db()
 
-    def action_play(self):
-        pass
-
-    def action_next(self):
-        pass
-
     def _get_episode_from_db(self):
         self.config.read(CONFIG_FILE)
 
@@ -68,17 +62,14 @@ class Serial():
         with open(CONFIG_FILE, 'wb') as config_file:
             self.config.write(config_file)
 
-    def _s_play(self, path, player="mplayer2"):
-        """Запускает mplayer для проигрывания файла"""
-        sp.call([player, path])
-
     def _s_play_episode(self, episode):
+        """Plays the episode with given number"""
         path = self.generate_filename(episode)
         # запускаем плейер
         try:
             os.stat(path)
             s_play(path)
-        except OSError, e:
+        except OSError:
             print "Episode {0} isn't here :(".format(episode)
             sys.exit(1)
 
@@ -95,12 +86,11 @@ class Serial():
     def create_subtitle_symlink(self, episode):
         cons = Constructor(self.files, episode)
         filename = cons.construct(episode)
-        p = os.getcwd()
         for roots, dirs, files in os.walk("."):
             try:
                 subfile = \
-                (''.join(os.path.join(roots, filename).rsplit('.')[0:-1]) +
-                 '.ass').replace('//', '/')[1:]
+                    (''.join(os.path.join(roots, filename).rsplit('.')[0:-1]) +
+                     '.ass').replace('//', '/')[1:]
                 #print os.path.join(subfile)
                 if (os.stat(os.path.join(os.getcwd(), subfile))):
                     os.symlink(subfile,
@@ -151,11 +141,8 @@ class Constructor():
         regexp_string = '{0}{1}.*'.format(re.escape(basename.rstrip('0')),
                                           str(self.episode).zfill(2))
         regexp = re.compile(regexp_string)
-        file_name = filter(lambda x: regexp.match(x), self.files)[0]
-        #except IndexError:
-        #    return None
-        #except TypeError:
-        #    return None
+        #file_name = filter(lambda x: regexp.match(x), self.files)[0]
+        file_name = [f for f in self.files if regexp.match(f)][0]
         if file_name in self.files:
             return file_name
         else:
@@ -214,20 +201,20 @@ class Constructor():
 
 def cmp_str(str1, str2):
     """Находим общую часть в строках"""
-    x = ''
+    shared = ''
     prev_match = True
     for i in xrange(0, len(str1)):
         if str1[i] == str2[i] and prev_match:
-            x += str1[i]
+            shared += str1[i]
         else:
             prev_match = False
-    return x
+    return shared
 
 
 def construct_diff_with_re(episode, files):
     basename = cmp_str(files[0], files[1])
     regexp = re.compile('{0}{1}.*'.format(re.escape(basename), episode))
-    result = filter(lambda x: regexp.match(x), files)[0]
+    result = [f for f in files if regexp.match(f)][0]
     return result
 
 
@@ -268,21 +255,11 @@ def find_mask(path):
     #    sys.exit(1)
 
 
-def is_first_run():
-    # FIXME: how we do it?
-    return False
-
-
 def find_file(regexp):
     files = os.listdir(os.getcwd())
     for i in files:
         if re.match(regexp, i) and i.split('.')[-1] in extensions:
             return i
-
-
-def parse_args():
-    argc = sys.argc
-    argv = sys.argv[1:]
 
 
 def construct_filename_dd_re(episode, files):
@@ -338,27 +315,6 @@ def s_play(path, player="mplayer2"):
     sp.call([player, path])
 
 
-def s_play_episode(episode):
-    # конструируем имя файла (включая полный путь)
-    path = construct_filename(episode)
-    # запускаем плейер
-    try:
-        os.stat(path)
-        s_play(path)
-    except OSError, e:
-        #print "File not found: {0}".format(path)
-        print "Episode {0} isn't here :(".format(episode)
-        #return 1
-
-
-def s_play_first():
-    s_play_episode(1)
-
-
-def s_next():
-    pass
-
-
 def get_episode_from_db():
     config = ConfigParser.RawConfigParser()
     config.read(CONFIG_FILE)
@@ -371,7 +327,6 @@ def get_episode_from_db():
 
 
 def save_episode_to_db(episode):
-    import random
     config = ConfigParser.RawConfigParser()
     config.read(CONFIG_FILE)
     try:
