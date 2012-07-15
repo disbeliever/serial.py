@@ -73,6 +73,16 @@ class Serial():
         sp.call([player, path])
 
     def _s_play_episode(self, episode):
+        path = self.generate_filename(episode)
+        # запускаем плейер
+        try:
+            os.stat(path)
+            s_play(path)
+        except OSError, e:
+            print "Episode {0} isn't here :(".format(episode)
+            sys.exit(1)
+
+    def generate_filename(self, episode):
         # конструируем имя файла (включая полный путь)
         try:
             constructor = Constructor(self.files, episode)
@@ -80,14 +90,7 @@ class Serial():
             self.create_subtitle_symlink(self.episode)
         except IndexError:
             path = ''
-        # запускаем плейер
-        try:
-            os.stat(path)
-            s_play(path)
-        except OSError, e:
-            #print "File not found: {0}".format(path)
-            print "Episode {0} isn't here :(".format(episode)
-            sys.exit(1)
+        return path
 
     def create_subtitle_symlink(self, episode):
         cons = Constructor(self.files, episode)
@@ -95,12 +98,13 @@ class Serial():
         p = os.getcwd()
         for roots, dirs, files in os.walk("."):
             try:
-                subfile = (''.join(os.path.join(roots, filename).rsplit('.')[0:-1]) + \
-                '.ass').replace('//', '/')[1:]
+                subfile = \
+                (''.join(os.path.join(roots, filename).rsplit('.')[0:-1]) +
+                 '.ass').replace('//', '/')[1:]
                 #print os.path.join(subfile)
                 if (os.stat(os.path.join(os.getcwd(), subfile))):
                     os.symlink(subfile,
-                    os.path.join(subfile.split(os.sep)[-1]))
+                               os.path.join(subfile.split(os.sep)[-1]))
                     #print "sub:", subfile
                     break
             except OSError:
@@ -193,11 +197,10 @@ class Constructor():
                 if str1[i].isdigit:
                     if pos == 0:
                         pos = i - 1
-                    elif inner == True:
+                    elif inner:
                         length += 1
             else:
                 continue
-        #print (pos, length)
         return (pos, length)
 
     def _find_mask(self):
@@ -214,7 +217,7 @@ def cmp_str(str1, str2):
     x = ''
     prev_match = True
     for i in xrange(0, len(str1)):
-        if str1[i] == str2[i] and prev_match == True:
+        if str1[i] == str2[i] and prev_match:
             x += str1[i]
         else:
             prev_match = False
@@ -226,14 +229,6 @@ def construct_diff_with_re(episode, files):
     regexp = re.compile('{0}{1}.*'.format(re.escape(basename), episode))
     result = filter(lambda x: regexp.match(x), files)[0]
     return result
-
-
-def switch_bool(x):
-    if x == False:
-        res = True
-    else:
-        res = False
-    return res
 
 
 def usage():
@@ -252,11 +247,10 @@ def find_diff(str1, str2):
             if str1[i].isdigit:
                 if pos == 0:
                     pos = i - 1
-                elif inner == True:
+                elif inner:
                     length += 1
         else:
             continue
-    #print (pos, length)
     return (pos, length)
 
 
