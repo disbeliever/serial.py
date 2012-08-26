@@ -7,10 +7,12 @@ import sys
 import subprocess as sp
 import re
 import ConfigParser
+import errno
 
 
 extensions = ["avi", "mkv", "mp4", "mpg"]
 CONFIG_FILE = os.path.expanduser("~/.serial.py.conf")
+player = "mplayer2"
 
 
 class Serial():
@@ -310,9 +312,15 @@ def construct_filename(episode):
             return path
 
 
-def s_play(path, player="mplayer2"):
+def s_play(path):
     """Запускает mplayer для проигрывания файла"""
-    sp.call([player, path])
+    try:
+        sp.call([player, path])
+    except OSError as e:
+        if e.errno == errno.ENOENT:
+            print "Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror)
+        else:
+            print "error: " + e.strerror
 
 
 def get_episode_from_db():
