@@ -91,5 +91,30 @@ class ConstructorTestCase(unittest.TestCase):
             construct_diff_with_re(4, self.files_diff_normal),
             self.files_diff_normal[3])
 
+    def test_find_diff_with_re_2(self):
+        files = [
+            "[UTW]_Fate_Zero_-_14_[h264-720p][4D1CAEDB].mkv",
+            "[UTW]_Fate_Zero_-_15_[h264-720p][422C8FDD].mkv",
+            "[UTW]_Fate_Zero_-_16_[h264-720p][02A33212].mkv",
+            "[UTW]_Fate_Zero_-_17_[h264-720p][F058E092].mkv",
+            "[UTW]_Fate_Zero_-_18_[h264-720p][CFAB3675].mkv",
+            "[UTW]_Fate_Zero_-_19_[h264-720p][EE7D8586].mkv",
+            "[UTW]_Fate_Zero_-_20_[h264-720p][AF35659F].mkv",
+            "[UTW]_Fate_Zero_-_21_[h264-720p][BCB5C808].mkv",
+            "[UTW]_Fate_Zero_-_22_[h264-720p][6F59864F].mkv",
+            "[UTW]_Fate_Zero_-_23_[h264-720p][9AD1A48A].mkv",
+            "[UTW]_Fate_Zero_-_24_[h264-720p][583D3DBB].mkv",
+            "[UTW]_Fate_Zero_-_25_[h264-720p][DEBA6F45].mkv"
+            ]
+        cons = Constructor(files, 15)
+        self.assertEqual(
+            cons._construct_diff_with_re(),
+            files[1])
+
+        cons = Constructor(files, 25)
+        self.assertEqual(
+            cons._construct_diff_with_re(),
+            files[-1])
+
 if __name__ == "__main__":
     unittest.main()

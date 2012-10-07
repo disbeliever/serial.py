@@ -8,6 +8,7 @@ import subprocess as sp
 import re
 import ConfigParser
 import errno
+import string
 
 
 extensions = ["avi", "mkv", "mp4", "mpg"]
@@ -136,12 +137,14 @@ class Constructor():
     def _construct_diff_with_re(self):
         try:
             basename = cmp_str(self.files[0],
-                               self.files[1])
+                               self.files[-1])
         except:
             basename = cmp_str(self.files[self.episode],
                                self.files[self.episode + 1])
-        regexp_string = '{0}{1}.*'.format(re.escape(basename.rstrip('0')),
-                                          str(self.episode).zfill(2))
+        regexp_string = '{0}{1}.*'.format(
+            re.escape(basename.rstrip(string.digits)),
+            str(self.episode).zfill(2)
+            )
         regexp = re.compile(regexp_string)
         #file_name = filter(lambda x: regexp.match(x), self.files)[0]
         file_name = [f for f in self.files if regexp.match(f)][0]
@@ -315,7 +318,7 @@ def construct_filename(episode):
 def s_play(path):
     """Запускает mplayer для проигрывания файла"""
     try:
-        sp.call([player, path])
+        sp.call([player, "-af", "scaletempo", path])
     except OSError as e:
         if e.errno == errno.ENOENT:
             print "Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror)
