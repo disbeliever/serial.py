@@ -86,19 +86,20 @@ class Serial():
             path = ''
         return path
 
+    def create_subfile_name(self, filename):
+        return os.path.splitext(filename)[0] + ".ass"
+
     def create_subtitle_symlink(self, episode):
         cons = Constructor(self.files, episode)
         filename = cons.construct(episode)
         for roots, dirs, files in os.walk("."):
+            subfile = os.path.normpath(self.create_subfile_name(
+                os.path.join(roots, filename)))
+            print "sub:", subfile
             try:
-                subfile = \
-                    (''.join(os.path.join(roots, filename).rsplit('.')[0:-1]) +
-                     '.ass').replace('//', '/')[1:]
-                #print os.path.join(subfile)
                 if (os.stat(os.path.join(os.getcwd(), subfile))):
                     os.symlink(subfile,
                                os.path.join(subfile.split(os.sep)[-1]))
-                    #print "sub:", subfile
                     break
             except OSError:
                 pass
@@ -144,7 +145,7 @@ class Constructor():
         regexp_string = '{0}{1}.*'.format(
             re.escape(basename.rstrip(string.digits)),
             str(self.episode).zfill(2)
-            )
+        )
         regexp = re.compile(regexp_string)
         #file_name = filter(lambda x: regexp.match(x), self.files)[0]
         file_name = [f for f in self.files if regexp.match(f)][0]

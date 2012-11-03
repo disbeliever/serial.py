@@ -5,7 +5,7 @@ import re
 import unittest
 
 from serial import find_diff, construct_diff_with_re, construct_filename_dd_re
-from serial import Constructor
+from serial import Constructor, Serial
 
 
 class MainTestCase(unittest.TestCase):
@@ -32,6 +32,14 @@ class MainTestCase(unittest.TestCase):
         self.assertEqual(path, "01. Первое знакомство.avi")
         path = construct_filename_dd_re(2, files)
         self.assertEqual(path, "02. Тяжелое расставание.avi")
+
+
+class SymlinkCreatorTestCase(unittest.TestCase):
+
+    def test_base(self):
+        serial = Serial("none")
+        self.assertEqual(serial.create_subfile_name("/home/test/video.mkv"),
+                         "/home/test/video.ass")
 
 
 class ConstructorTestCase(unittest.TestCase):
