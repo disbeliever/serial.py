@@ -11,7 +11,7 @@ import errno
 import string
 
 
-extensions = ["avi", "mkv", "mp4", "mpg"]
+EXTENSIONS = ["avi", "mkv", "mp4", "mpg"]
 CONFIG_FILE = os.path.expanduser("~/.serial.py.conf")
 player = "mplayer2"
 
@@ -22,7 +22,7 @@ class Serial():
         self.config = ConfigParser.RawConfigParser()
         self.cwd = os.getcwd()
         self.files = [i for i in os.listdir(self.cwd)
-                      if i.split('.')[-1].lower() in extensions]
+                      if i.split('.')[-1].lower() in EXTENSIONS]
         self.files.sort()
 
         if episode == 0 and action == 'play':
@@ -132,7 +132,7 @@ class Constructor():
         re_comp = re.compile(r'0*' + str(self.episode) + r'\D+')
         file_name = [re_comp.match(i) for i in self.files
                      if (re_comp.match(i) is not None
-                         and i.split('.')[-1] in extensions)][0].group()
+                         and i.split('.')[-1] in EXTENSIONS)][0].group()
         return file_name
 
     def _construct_diff_with_re(self):
@@ -176,7 +176,7 @@ class Constructor():
     def _find_file(self, regexp):
         """Find file by given regexp"""
         for i in self.files:
-            if re.match(regexp, i) and i.split('.')[-1] in extensions:
+            if re.match(regexp, i) and i.split('.')[-1] in EXTENSIONS:
                 return i
 
     def _find_diff(self, str1, str2):
@@ -197,7 +197,7 @@ class Constructor():
         return (pos, length)
 
     def _find_mask(self):
-        files = [i for i in self.files if i.split('.')[-1] in extensions]
+        files = [i for i in self.files if i.split('.')[-1] in EXTENSIONS]
         files.sort()
 
         diff = find_diff(files[0], files[1])
@@ -225,7 +225,9 @@ def construct_diff_with_re(episode, files):
 
 
 def usage():
-    print "Usage: serial.py [episode]"
+    print "Usage: serial.py [episode]" + \
+        "serial.py next - play next episode" + \
+        "serial.py set [episode] - set current episode to [episode]"
     sys.exit(1)
 
 
@@ -248,23 +250,18 @@ def find_diff(str1, str2):
 
 
 def find_mask(path):
-    files = [i for i in os.listdir(path) if i.split('.')[-1] in extensions]
+    files = [i for i in os.listdir(path) if i.split('.')[-1] in EXTENSIONS]
     files.sort()
-    #try:
+
     diff = find_diff(files[0], files[1])
-    #print diff
     (pos, length) = (diff[0], diff[1])
-    #print files[0][pos:pos + length]
     return (pos, length)
-    #except IndexError:
-    #    print "[error]: Something wrong with indices in find_mask()"
-    #    sys.exit(1)
 
 
 def find_file(regexp):
     files = os.listdir(os.getcwd())
     for i in files:
-        if re.match(regexp, i) and i.split('.')[-1] in extensions:
+        if re.match(regexp, i) and i.split('.')[-1] in EXTENSIONS:
             return i
 
 
@@ -273,7 +270,7 @@ def construct_filename_dd_re(episode, files):
 
     path = [re_comp.match(i) for i in files
             if (re_comp.match(i) is not None and
-                i.split('.')[-1] in extensions)][0].group()
+                i.split('.')[-1] in EXTENSIONS)][0].group()
     return path
 
 
@@ -319,36 +316,12 @@ def construct_filename(episode):
 def s_play(path):
     """Запускает mplayer для проигрывания файла"""
     try:
-        sp.call([player, "-af", "scaletempo", path])
+        sp.call([player, path])
     except OSError as e:
         if e.errno == errno.ENOENT:
             print "Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror)
         else:
             print "error: " + e.strerror
-
-
-def get_episode_from_db():
-    config = ConfigParser.RawConfigParser()
-    config.read(CONFIG_FILE)
-
-    try:
-        episode = config.getint('Main', os.getcwd())
-    except ConfigParser.NoSectionError:
-        episode = 1
-    return episode
-
-
-def save_episode_to_db(episode):
-    config = ConfigParser.RawConfigParser()
-    config.read(CONFIG_FILE)
-    try:
-        config.add_section('Main')
-    except ConfigParser.DuplicateSectionError:
-        pass
-    config.set('Main', os.getcwd(), episode)
-    with open(CONFIG_FILE, 'wb') as config_file:
-        config.write(config_file)
-
 
 def main():
     try:
