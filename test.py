@@ -100,9 +100,11 @@ class ConstructorTestCase(unittest.TestCase):
 "13. Неравенство.mkv"]
         constructor = Constructor(files)
         self.assertEqual(constructor.construct(5),
-                         "05. Приманка.mkv")
+                         files[4])
         self.assertEqual(constructor.construct(6),
-                         "06. Подражатели.mkv")
+                         files[5])
+        self.assertEqual(constructor.construct(7),
+                         files[6])
 
     def test_find_diff_with_re(self):
         files = [

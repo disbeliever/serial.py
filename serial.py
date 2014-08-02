@@ -113,12 +113,9 @@ class Constructor():
 
     def construct(self, episode):
         self.episode = episode
+
+        file_name = ""
         # 1st method
-        #file_name = self._construct_filename_find_diff()
-        file_name = self._construct_diff_with_re()
-        if file_name in self.files:
-            return file_name
-        # 2nd method
         try:
             file_name = self._construct_filename_dd_re()
         except IndexError:
@@ -128,8 +125,14 @@ class Constructor():
         if file_name:
             return file_name
 
+        # 2nd method
+        #file_name = self._construct_filename_find_diff()
+        file_name = self._construct_diff_with_re()
+        if file_name in self.files:
+            return file_name
+
     def _construct_filename_dd_re(self):
-        re_comp = re.compile(r'0*' + str(self.episode) + r'\D+')
+        re_comp = re.compile(r'0*' + str(self.episode) + r'.+')
         file_name = [re_comp.match(i) for i in self.files
                      if (re_comp.match(i) is not None
                          and i.split('.')[-1] in EXTENSIONS)][0].group()
