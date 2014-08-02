@@ -135,19 +135,21 @@ class Constructor():
                          and i.split('.')[-1] in EXTENSIONS)][0].group()
         return file_name
 
-    def _construct_diff_with_re(self):
+    def _construct_diff_with_re(self, episode=0):
+        # next line is for using in unit-test
+        if (episode > 0): self.episode = episode
+
         try:
             basename = cmp_str(self.files[0],
                                self.files[-1])
         except:
-            basename = cmp_str(self.files[self.episode],
-                               self.files[self.episode + 1])
+            basename = cmp_str(self.files[self.episode - 1],
+                               self.files[self.episode])
         regexp_string = '{0}{1}.*'.format(
             re.escape(basename.rstrip(string.digits)),
             str(self.episode).zfill(2)
         )
         regexp = re.compile(regexp_string)
-        #file_name = filter(lambda x: regexp.match(x), self.files)[0]
         file_name = [f for f in self.files if regexp.match(f)][0]
         if file_name in self.files:
             return file_name
@@ -215,13 +217,6 @@ def cmp_str(str1, str2):
         else:
             prev_match = False
     return shared
-
-
-def construct_diff_with_re(episode, files):
-    basename = cmp_str(files[0], files[1])
-    regexp = re.compile('{0}{1}.*'.format(re.escape(basename), episode))
-    result = [f for f in files if regexp.match(f)][0]
-    return result
 
 
 def usage():
@@ -322,6 +317,7 @@ def s_play(path):
             print "Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror)
         else:
             print "error: " + e.strerror
+
 
 def main():
     try:

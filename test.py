@@ -4,7 +4,7 @@
 import re
 import unittest
 
-from serial import find_diff, construct_diff_with_re, construct_filename_dd_re
+from serial import find_diff, construct_filename_dd_re
 from serial import Constructor, Serial
 
 
@@ -44,6 +44,9 @@ class SymlinkCreatorTestCase(unittest.TestCase):
 
 class ConstructorTestCase(unittest.TestCase):
 
+    def runTest(self):
+        test_constructor_dd()
+
     files_diff_normal = ["[j22v] BLOOD-C - 01 (TBS 1280x720 x264).mp4",
                          "[j22v] BLOOD-C - 02 (TBS 1280x720 x264).mp4",
                          "[j22v] BLOOD-C - 03 (TBS 1280x720 x264).mp4",
@@ -82,6 +85,25 @@ class ConstructorTestCase(unittest.TestCase):
         self.assertEqual(constructor.construct(2),
                          "02. Тяжелое расставание.avi")
 
+        files = ["01. Бюро общественной безопасности, 9-й отдел.mkv",
+"02. Испытание.mkv",
+"03. Андроид и я.mkv",
+"04. Перехватчик.mkv",
+"05. Приманка.mkv",
+"06. Подражатели.mkv",
+"07. Идолопоклонничество.mkv",
+"08. Пропавшие сердца.mkv",
+"09. Чат! Чат! Чат!.mkv",
+"10. Война в джунглях.mkv",
+"11. Портреты.mkv",
+"12. Побег.mkv",
+"13. Неравенство.mkv"]
+        constructor = Constructor(files)
+        self.assertEqual(constructor.construct(5),
+                         "05. Приманка.mkv")
+        self.assertEqual(constructor.construct(6),
+                         "06. Подражатели.mkv")
+
     def test_find_diff_with_re(self):
         files = [
             "[Raws-4U] Amagami SS - 01 (TBS 1280x720 H.264 AAC Chap).mp4",
@@ -92,12 +114,13 @@ class ConstructorTestCase(unittest.TestCase):
             "[Raws-4U] Amagami SS - 06 (TBS 1280x720 H.264 AAC Chap).mp4",
             "[Raws-4U] Amagami SS - 07 (TBS 1280x720 H.264 AAC Chap).mp4",
             "[Raws-4U] Amagami SS - 08 (TBS 1280x720 H.264 AAC Chap).mp4]"]
+        constructor = Constructor(files)
         self.assertEqual(
-            construct_diff_with_re(2, files),
+            constructor._construct_diff_with_re(2),
             files[1])
         self.assertEqual(
-            construct_diff_with_re(4, self.files_diff_normal),
-            self.files_diff_normal[3])
+            constructor._construct_diff_with_re(4),
+            files[3])
 
     def test_find_diff_with_re_2(self):
         files = [
@@ -114,14 +137,14 @@ class ConstructorTestCase(unittest.TestCase):
             "[UTW]_Fate_Zero_-_24_[h264-720p][583D3DBB].mkv",
             "[UTW]_Fate_Zero_-_25_[h264-720p][DEBA6F45].mkv"
             ]
-        cons = Constructor(files, 15)
+        constructor = Constructor(files, 15)
         self.assertEqual(
-            cons._construct_diff_with_re(),
+            constructor._construct_diff_with_re(),
             files[1])
 
-        cons = Constructor(files, 25)
+        constructor = Constructor(files, 25)
         self.assertEqual(
-            cons._construct_diff_with_re(),
+            constructor._construct_diff_with_re(),
             files[-1])
 
 if __name__ == "__main__":
