@@ -45,7 +45,7 @@ class SymlinkCreatorTestCase(unittest.TestCase):
 class ConstructorTestCase(unittest.TestCase):
 
     def runTest(self):
-        test_constructor_dd()
+        test_different_raws()
 
     files_diff_normal = ["[j22v] BLOOD-C - 01 (TBS 1280x720 x264).mp4",
                          "[j22v] BLOOD-C - 02 (TBS 1280x720 x264).mp4",
@@ -86,18 +86,18 @@ class ConstructorTestCase(unittest.TestCase):
                          "02. Тяжелое расставание.avi")
 
         files = ["01. Бюро общественной безопасности, 9-й отдел.mkv",
-"02. Испытание.mkv",
-"03. Андроид и я.mkv",
-"04. Перехватчик.mkv",
-"05. Приманка.mkv",
-"06. Подражатели.mkv",
-"07. Идолопоклонничество.mkv",
-"08. Пропавшие сердца.mkv",
-"09. Чат! Чат! Чат!.mkv",
-"10. Война в джунглях.mkv",
-"11. Портреты.mkv",
-"12. Побег.mkv",
-"13. Неравенство.mkv"]
+                 "02. Испытание.mkv",
+                 "03. Андроид и я.mkv",
+                 "04. Перехватчик.mkv",
+                 "05. Приманка.mkv",
+                 "06. Подражатели.mkv",
+                 "07. Идолопоклонничество.mkv",
+                 "08. Пропавшие сердца.mkv",
+                 "09. Чат! Чат! Чат!.mkv",
+                 "10. Война в джунглях.mkv",
+                 "11. Портреты.mkv",
+                 "12. Побег.mkv",
+                 "13. Неравенство.mkv"]
         constructor = Constructor(files)
         self.assertEqual(constructor.construct(5),
                          files[4])
@@ -148,6 +148,27 @@ class ConstructorTestCase(unittest.TestCase):
         self.assertEqual(
             constructor._construct_diff_with_re(),
             files[-1])
+
+    def test_different_raws(self):
+        files = ["[Commie] Haikyuu!! - 01 [5CB6E137].mkv",
+                 "[Commie] Haikyuu!! - 02 [87E40A94].mkv",
+                 "[Commie] Haikyuu!! - 03 [80B4441C].mkv",
+                 "[Commie] Haikyuu!! - 04 [9E537287].mkv",
+                 "[Commie] Haikyuu!! - 05 [009570F4].mkv",
+                 "[Commie] Haikyuu!! - 06 [AAE4F869].mkv",
+                 "[Commie] Haikyuu!! - 07 [572852D7].mkv",
+                 "[Commie] Haikyuu!! - 08 [13E5217D].mkv",
+                 "[mohbaboo-subs] Haikyuu!! - 09 [1B080828].mkv",
+                 "[mohbaboo-subs] Haikyuu!! - 10 [7FF0CBA2].mkv"]
+        constructor = Constructor(files, 1)
+        self.assertEqual(
+            constructor.construct(1),
+            files[0])
+
+        constructor = Constructor(files)
+        self.assertEqual(
+            constructor.construct(1),
+            files[0])
 
 if __name__ == "__main__":
     unittest.main()
