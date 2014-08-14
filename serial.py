@@ -328,6 +328,11 @@ def main():
     except:
         usage()
 
+    config = ConfigParser.RawConfigParser()
+    config.read(CONFIG_FILE)
+    global player
+    player = config.get('General', 'player')
+
     if len(args) == 0:
         episode = 0
         action = 'play'
