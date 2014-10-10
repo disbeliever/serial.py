@@ -154,6 +154,7 @@ class Constructor():
             str(self.episode).zfill(2)
         )
         regexp = re.compile(regexp_string)
+        #print regexp_string
         file_name = [f for f in self.files if regexp.match(f)][0]
         if file_name in self.files:
             return file_name
@@ -215,12 +216,24 @@ def cmp_str(str1, str2):
     """Находим общую часть в строках"""
     shared = ''
     prev_match = True
+    (str1, str2) = trim_down(str1, str2)
     for i in xrange(0, len(str1)):
         if str1[i] == str2[i] and prev_match:
             shared += str1[i]
         else:
             prev_match = False
     return shared
+
+
+def trim_down(str1, str2):
+    res = ()
+    if (len(str1) > len(str2)):
+        res = (str1[len(str1) - len(str2):len(str2) - 1], str2)
+    elif(len(str1) < len(str2)):
+        res = (str1, str2[len(str2) - len(str1):len(str1) - 1])
+    else:
+        res = (str1, str2)
+    return res
 
 
 def usage():
@@ -231,7 +244,7 @@ def usage():
 
 
 def s_play(path):
-    """Запускает mplayer для проигрывания файла"""
+    """Run mplayer"""
     try:
         sp.call([player, path])
     except OSError as e:

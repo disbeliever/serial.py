@@ -49,7 +49,7 @@ class SymlinkCreatorTestCase(unittest.TestCase):
 class ConstructorTestCase(unittest.TestCase):
 
     def runTest(self):
-        test_different_raws()
+        self.test_different_raws()
 
     files_diff_normal = ["[j22v] BLOOD-C - 01 (TBS 1280x720 x264).mp4",
                          "[j22v] BLOOD-C - 02 (TBS 1280x720 x264).mp4",
@@ -119,7 +119,7 @@ class ConstructorTestCase(unittest.TestCase):
             "[Raws-4U] Amagami SS - 05 (TBS 1280x720 H.264 AAC Chap rev2).mp4",
             "[Raws-4U] Amagami SS - 06 (TBS 1280x720 H.264 AAC Chap).mp4",
             "[Raws-4U] Amagami SS - 07 (TBS 1280x720 H.264 AAC Chap).mp4",
-            "[Raws-4U] Amagami SS - 08 (TBS 1280x720 H.264 AAC Chap).mp4]"]
+            "[Raws-4U] Amagami SS - 08 (TBS 1280x720 H.264 AAC Chap).mp4"]
         constructor = Constructor(files)
         self.assertEqual(
             constructor._construct_diff_with_re(2),
