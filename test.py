@@ -4,16 +4,16 @@
 import re
 import unittest
 
-from serial import find_diff, construct_filename_dd_re
 from serial import Constructor, Serial
 
 
 class MainTestCase(unittest.TestCase):
 
     def test_find_diff(self):
+        constructor = Constructor([])
         series1 = "Dantalian no Shoka - 01 (TX 1280x720 x264).mp4)"
         series2 = "Dantalian no Shoka - 02 (TX 1280x720 x264).mp4)"
-        (pos, length) = find_diff(series1, series2)
+        (pos, length) = constructor._find_diff(series1, series2)
         self.assertEqual(pos, 21)
         self.assertEqual(length, 2)
 
@@ -28,9 +28,13 @@ class MainTestCase(unittest.TestCase):
 
     def test_construct_filename_dd_re(self):
         files = ["01. Первое знакомство.avi", "02. Тяжелое расставание.avi"]
-        path = construct_filename_dd_re(1, files)
+        constructor = Constructor(files)
+
+        path = constructor._construct_filename_dd_re()
         self.assertEqual(path, "01. Первое знакомство.avi")
-        path = construct_filename_dd_re(2, files)
+
+        constructor.episode = 2
+        path = constructor._construct_filename_dd_re()
         self.assertEqual(path, "02. Тяжелое расставание.avi")
 
 

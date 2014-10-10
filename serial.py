@@ -140,7 +140,8 @@ class Constructor():
 
     def _construct_diff_with_re(self, episode=0):
         # next line is for using in unit-test
-        if (episode > 0): self.episode = episode
+        if (episode > 0):
+            self.episode = episode
 
         try:
             basename = cmp_str(self.files[0],
@@ -227,88 +228,6 @@ def usage():
         "serial.py next - play next episode" + \
         "serial.py set [episode] - set current episode to [episode]"
     sys.exit(1)
-
-
-def find_diff(str1, str2):
-    pos = 0
-    length = 2
-    if len(str1) != len(str2):
-        print "These fucking filenames are uncomparable!"
-        return (0, 0)
-    for i in xrange(0, len(str1)):
-        if str1[i] != str2[i]:
-            if str1[i].isdigit:
-                if pos == 0:
-                    pos = i - 1
-                elif inner:
-                    length += 1
-        else:
-            continue
-    return (pos, length)
-
-
-def find_mask(path):
-    files = [i for i in os.listdir(path) if i.split('.')[-1] in EXTENSIONS]
-    files.sort()
-
-    diff = find_diff(files[0], files[1])
-    (pos, length) = (diff[0], diff[1])
-    return (pos, length)
-
-
-def find_file(regexp):
-    files = os.listdir(os.getcwd())
-    for i in files:
-        if re.match(regexp, i) and i.split('.')[-1] in EXTENSIONS:
-            return i
-
-
-def construct_filename_dd_re(episode, files):
-    re_comp = re.compile(r'0*' + str(episode) + r'\D+')
-
-    path = [re_comp.match(i) for i in files
-            if (re_comp.match(i) is not None and
-                i.split('.')[-1] in EXTENSIONS)][0].group()
-    return path
-
-
-def construct_filename_find_diff(episode):
-    """
-    Конструируем имя файла на основе поиска разницы.
-    Работает для случаев вроде:
-    Bla-bla - 01 tra-la-la.mkv
-    Bla-bla - 02 tra-la-la.mkv
-    """
-    # определяем имя файла для 1-й серии (это будет базовое имя файла)
-    path = find_file(r'.*0*{0}.*'.format(1))
-    # определяем позицию и длину подстроки, отвечающей за номер серии
-    (pos, length) = find_mask(os.getcwd())
-    # конструируем имя файла для нужной нам серии
-    path = path[0:pos] + str(episode).zfill(length) + path[pos + length:]
-    return path
-
-
-def construct_filename(episode):
-    path = ""
-    cwd = os.getcwd()
-    # 1. First method
-    try:
-        path = os.path.join(cwd,
-                            construct_filename_dd_re(int(episode),
-                                                     os.listdir(cwd)))
-    except IndexError:
-        pass
-    except TypeError:
-        pass
-
-    if path:
-        print path
-        return path
-    else:
-        # 2. Second method (difference-based)
-        path = construct_filename_find_diff(episode)
-        if path:
-            return path
 
 
 def s_play(path):
