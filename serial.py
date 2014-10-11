@@ -143,12 +143,16 @@ class Constructor():
         if (episode > 0):
             self.episode = episode
 
-        try:
-            basename = cmp_str(self.files[0],
-                               self.files[-1])
-        except:
+        basename = cmp_str(self.files[0],
+                           self.files[-1])
+        if (len(basename) == 0):
             basename = cmp_str(self.files[self.episode - 1],
                                self.files[self.episode])
+
+        if (len(basename) == 0):
+            basename = cmp_str(self.files[self.episode - 2],
+                               self.files[self.episode - 1])
+
         regexp_string = '{0}{1}.*'.format(
             re.escape(basename.rstrip(string.digits)),
             str(self.episode).zfill(2)
@@ -228,9 +232,9 @@ def cmp_str(str1, str2):
 def trim_down(str1, str2):
     res = ()
     if (len(str1) > len(str2)):
-        res = (str1[len(str1) - len(str2):len(str2) - 1], str2)
+        res = (str1[len(str1) - len(str2):len(str2)], str2)
     elif(len(str1) < len(str2)):
-        res = (str1, str2[len(str2) - len(str1):len(str1) - 1])
+        res = (str1, str2[len(str2) - len(str1):len(str2)])
     else:
         res = (str1, str2)
     return res

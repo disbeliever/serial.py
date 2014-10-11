@@ -4,10 +4,13 @@
 import re
 import unittest
 
-from serial import Constructor, Serial
+from serial import Constructor, Serial, trim_down
 
 
 class MainTestCase(unittest.TestCase):
+
+    def runTest(self):
+        self.test_trim_down()
 
     def test_find_diff(self):
         constructor = Constructor([])
@@ -36,6 +39,14 @@ class MainTestCase(unittest.TestCase):
         constructor.episode = 2
         path = constructor._construct_filename_dd_re()
         self.assertEqual(path, "02. Тяжелое расставание.avi")
+
+    def test_trim_down(self):
+        files = ["[Commie] Haikyuu!! - 08 [13E5217D].mkv",
+                 "[mohbaboo-subs] Haikyuu!! - 09 [1B080828].mkv"]
+        self.assertEqual(
+            trim_down(files[0], files[1]),
+            ("[Commie] Haikyuu!! - 08 [13E5217D].mkv",
+             "oo-subs] Haikyuu!! - 09 [1B080828].mkv"))
 
 
 class SymlinkCreatorTestCase(unittest.TestCase):
@@ -169,10 +180,10 @@ class ConstructorTestCase(unittest.TestCase):
             constructor.construct(1),
             files[0])
 
-        constructor = Constructor(files)
         self.assertEqual(
-            constructor.construct(1),
-            files[0])
+            constructor.construct(8),
+            files[7])
+
 
 if __name__ == "__main__":
     unittest.main()
