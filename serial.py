@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import getopt
@@ -6,7 +6,7 @@ import os
 import sys
 import subprocess as sp
 import re
-import ConfigParser
+import configparser
 import errno
 import string
 
@@ -19,7 +19,7 @@ player = "mplayer2"
 class Serial():
 
     def __init__(self, action, episode=0):
-        self.config = ConfigParser.RawConfigParser()
+        self.config = configparser.RawConfigParser()
         self.cwd = os.getcwd()
         self.files = [i for i in os.listdir(self.cwd)
                       if i.split('.')[-1].lower() in EXTENSIONS]
@@ -49,9 +49,9 @@ class Serial():
 
         try:
             episode = self.config.getint('Main', self.cwd)
-        except ConfigParser.NoSectionError:
+        except configparser.NoSectionError:
             episode = 1
-        except ConfigParser.NoOptionError:
+        except configparser.NoOptionError:
             episode = 1
         return episode
 
@@ -59,10 +59,10 @@ class Serial():
         self.config.read(CONFIG_FILE)
         try:
             self.config.add_section('Main')
-        except ConfigParser.DuplicateSectionError:
+        except configparser.DuplicateSectionError:
             pass
         self.config.set('Main', self.cwd, self.episode)
-        with open(CONFIG_FILE, 'wb') as config_file:
+        with open(CONFIG_FILE, 'w') as config_file:
             self.config.write(config_file)
 
     def _s_play_episode(self, episode):
@@ -73,7 +73,7 @@ class Serial():
             os.stat(path)
             s_play(path)
         except OSError:
-            print "Episode {0} isn't here :(".format(episode)
+            print("Episode {0} isn't here :(".format(episode))
             sys.exit(1)
 
     def generate_filename(self, episode):
@@ -95,7 +95,6 @@ class Serial():
         for roots, dirs, files in os.walk("."):
             subfile = os.path.normpath(self.create_subfile_name(
                 os.path.join(roots, filename)))
-            print "sub:", subfile
             try:
                 if (os.stat(os.path.join(os.getcwd(), subfile))):
                     os.symlink(subfile,
@@ -158,7 +157,6 @@ class Constructor():
             str(self.episode).zfill(2)
         )
         regexp = re.compile(regexp_string)
-        #print regexp_string
         file_name = [f for f in self.files if regexp.match(f)][0]
         if file_name in self.files:
             return file_name
@@ -194,9 +192,9 @@ class Constructor():
         pos = 0
         length = 2
         if len(str1) != len(str2):
-            print "These fucking filenames are uncomparable!"
+            print("These fucking filenames are uncomparable!")
             return (0, 0)
-        for i in xrange(0, len(str1)):
+        for i in range(0, len(str1)):
             if str1[i] != str2[i]:
                 if str1[i].isdigit:
                     if pos == 0:
@@ -221,7 +219,7 @@ def cmp_str(str1, str2):
     shared = ''
     prev_match = True
     (str1, str2) = trim_down(str1, str2)
-    for i in xrange(0, len(str1)):
+    for i in range(0, len(str1)):
         if str1[i] == str2[i] and prev_match:
             shared += str1[i]
         else:
@@ -241,9 +239,9 @@ def trim_down(str1, str2):
 
 
 def usage():
-    print "Usage: serial.py [episode]" + \
+    print("Usage: serial.py [episode]" + \
         "serial.py next - play next episode" + \
-        "serial.py set [episode] - set current episode to [episode]"
+        "serial.py set [episode] - set current episode to [episode]")
     sys.exit(1)
 
 
@@ -253,9 +251,9 @@ def s_play(path):
         sp.call([player, path])
     except OSError as e:
         if e.errno == errno.ENOENT:
-            print "Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror)
+            print("Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror))
         else:
-            print "error: " + e.strerror
+            print("error: " + e.strerror)
 
 
 def main():
@@ -264,10 +262,15 @@ def main():
     except:
         usage()
 
-    config = ConfigParser.RawConfigParser()
+    config = configparser.RawConfigParser()
     config.read(CONFIG_FILE)
     global player
-    player = config.get('General', 'player')
+    try:
+        player = config.get('General', 'player')
+    except configparser.NoSectionError:
+        player = "mplayer"
+    except configparser.KeyError:
+        player = "mplayer"
 
     if len(args) == 0:
         episode = 0
@@ -287,8 +290,8 @@ def main():
             episode = args[1]
             action = 'set'
     else:
-        print len(args)
-        print "error"
+        print(len(args))
+        print("error")
         return 1
 
     serial = Serial(action, int(episode))
