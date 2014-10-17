@@ -13,7 +13,7 @@ import string
 
 EXTENSIONS = ["avi", "mkv", "mp4", "mpg"]
 CONFIG_FILE = os.path.expanduser("~/.serial.py.conf")
-player = "mplayer2"
+player = "mpv"
 
 
 class Serial():
@@ -132,9 +132,12 @@ class Constructor():
 
     def _construct_filename_dd_re(self):
         re_comp = re.compile(r'0*' + str(self.episode) + r'.+')
-        file_name = [re_comp.match(i) for i in self.files
-                     if (re_comp.match(i) is not None
-                         and i.split('.')[-1] in EXTENSIONS)][0].group()
+        try:
+            file_name = [re_comp.match(i) for i in self.files
+                         if (re_comp.match(i) is not None
+                             and i.split('.')[-1] in EXTENSIONS)][0].group()
+        except:
+            file_name = None
         return file_name
 
     def _construct_diff_with_re(self, episode=0):
