@@ -17,7 +17,7 @@ player = "mpv"
 
 
 class Serial():
-
+    constructor = None
     def __init__(self, action, episode=0):
         self.config = configparser.RawConfigParser()
         self.cwd = os.getcwd()
@@ -77,10 +77,10 @@ class Serial():
             sys.exit(1)
 
     def generate_filename(self, episode):
-        # конструируем имя файла (включая полный путь)
+        # constructing file name (including full path)
         try:
-            constructor = Constructor(self.files, episode)
-            path = os.path.join(self.cwd, constructor.construct(episode))
+            self.constructor = Constructor(self.files, episode)
+            path = os.path.join(self.cwd, self.constructor.construct(episode))
             self.create_subtitle_symlink(self.episode)
         except IndexError:
             path = ''
@@ -90,8 +90,8 @@ class Serial():
         return os.path.splitext(filename)[0] + ".ass"
 
     def create_subtitle_symlink(self, episode):
-        cons = Constructor(self.files, episode)
-        filename = cons.construct(episode)
+        self.constructor = Constructor(self.files, episode)
+        filename = self.constructor.construct(episode)
         for roots, dirs, files in os.walk("."):
             subfile = os.path.normpath(self.create_subfile_name(
                 os.path.join(roots, filename)))
@@ -242,9 +242,9 @@ def trim_down(str1, str2):
 
 
 def usage():
-    print("Usage: serial.py [episode]" + \
-        "serial.py next - play next episode" + \
-        "serial.py set [episode] - set current episode to [episode]")
+    print("Usage: serial.py [episode]" +
+          "serial.py next - play next episode" +
+          "serial.py set [episode] - set current episode to [episode]")
     sys.exit(1)
 
 
