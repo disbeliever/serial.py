@@ -18,6 +18,7 @@ player = "mpv"
 
 class Serial():
     constructor = None
+
     def __init__(self, action, episode=0):
         self.config = configparser.RawConfigParser()
         self.cwd = os.getcwd()
@@ -242,8 +243,8 @@ def trim_down(str1, str2):
 
 
 def usage():
-    print("Usage: serial.py [episode]" +
-          "serial.py next - play next episode" +
+    print("Usage: serial.py [episode]\n" +
+          "serial.py next - play next episode\n" +
           "serial.py set [episode] - set current episode to [episode]")
     sys.exit(1)
 
@@ -275,6 +276,7 @@ def main():
     except configparser.KeyError:
         player = "mplayer"
 
+
     if len(args) == 0:
         episode = 0
         action = 'play'
@@ -288,10 +290,14 @@ def main():
         elif args[0] == 'next':
             episode = 0
             action = 'next'
+        else:
+            usage()
     elif len(args) == 2:
         if args[0] == 'set':
             episode = args[1]
             action = 'set'
+        else:
+            usage()
     else:
         print(len(args))
         print("error")
