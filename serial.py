@@ -28,13 +28,12 @@ class Serial():
 
         if episode == 0 and action == 'play':
             self.episode = self._get_episode_from_db()
+            if (self.episode == 0):
+                self.episode += 1
             self._s_play_episode(self.episode)
             self._save_episode_to_db()
         elif action == 'play':
             self.episode = episode
-            self._s_play_episode(self.episode)
-        elif action == 'play' and episode == 0:
-            self._get_episode_from_db()
             self._s_play_episode(self.episode)
         elif action == 'next':
             self.episode = self._get_episode_from_db() + 1
@@ -51,9 +50,9 @@ class Serial():
         try:
             episode = self.config.getint('Main', self.cwd)
         except configparser.NoSectionError:
-            episode = 1
+            episode = 0
         except configparser.NoOptionError:
-            episode = 1
+            episode = 0
         return episode
 
     def _save_episode_to_db(self):
@@ -126,7 +125,6 @@ class Constructor():
             return file_name
 
         # 2nd method
-        #file_name = self._construct_filename_find_diff()
         file_name = self._construct_diff_with_re()
         if file_name in self.files:
             return file_name
@@ -276,7 +274,6 @@ def main():
     except configparser.KeyError:
         player = "mplayer"
 
-
     if len(args) == 0:
         episode = 0
         action = 'play'
@@ -286,7 +283,7 @@ def main():
             episode = args[0]
         elif args[0] == 'play':
             action = 'play'
-            episode = 1
+            episode = 0
         elif args[0] == 'next':
             episode = 0
             action = 'next'
