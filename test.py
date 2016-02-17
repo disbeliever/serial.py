@@ -4,8 +4,8 @@
 import re
 import unittest
 
-from serial import Constructor, Serial, trim_down
-
+from serial import Constructor, Serial
+import string_helpers
 
 class MainTestCase(unittest.TestCase):
 
@@ -44,7 +44,7 @@ class MainTestCase(unittest.TestCase):
         files = ["[Commie] Haikyuu!! - 08 [13E5217D].mkv",
                  "[mohbaboo-subs] Haikyuu!! - 09 [1B080828].mkv"]
         self.assertEqual(
-            trim_down(files[0], files[1]),
+            string_helpers.trim_down(files[0], files[1]),
             ("[Commie] Haikyuu!! - 08 [13E5217D].mkv",
              "oo-subs] Haikyuu!! - 09 [1B080828].mkv"))
 
