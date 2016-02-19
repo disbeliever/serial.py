@@ -230,10 +230,12 @@ def s_play(path):
     try:
         sp.call([player, path])
     except OSError as e:
+        errstr = ""
         if e.errno == errno.ENOENT:
-            print("Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror))
+            errstr = "Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror)
         else:
-            print("error: " + e.strerror)
+            errstr = "error: " + e.strerror
+        raise Exception(errstr)
 
 
 def main():
@@ -278,7 +280,11 @@ def main():
         print("error")
         return 1
 
-    serial = Serial(action, int(episode))
+    try:
+        serial = Serial(action, int(episode))
+    except Exception as e:
+        print(e)
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())
