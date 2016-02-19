@@ -109,7 +109,8 @@ class Serial():
 class Constructor():
 
     def __init__(self, files, episode=0):
-        self.files = files
+        self.files = [i for i in files
+                      if i.split('.')[-1].lower() in EXTENSIONS]
         self.episode = episode
 
     def construct(self, episode):
@@ -135,8 +136,7 @@ class Constructor():
         re_comp = re.compile(r'0*' + str(self.episode) + r'.+')
         try:
             file_name = [re_comp.match(i) for i in self.files
-                         if (re_comp.match(i) is not None
-                             and i.split('.')[-1] in EXTENSIONS)][0].group()
+                         if (re_comp.match(i) is not None)][0].group()
         except:
             file_name = None
         return file_name
@@ -189,7 +189,7 @@ class Constructor():
     def _find_file(self, regexp):
         """Find file by given regexp"""
         for i in self.files:
-            if re.match(regexp, i) and i.split('.')[-1] in EXTENSIONS:
+            if re.match(regexp, i):
                 return i
 
     def _find_diff(self, str1, str2):
@@ -210,7 +210,7 @@ class Constructor():
         return (pos, length)
 
     def _find_mask(self):
-        files = [i for i in self.files if i.split('.')[-1] in EXTENSIONS]
+        files = self.files
         files.sort()
 
         diff = find_diff(files[0], files[1])
