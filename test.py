@@ -7,6 +7,7 @@ import unittest
 from serial import Constructor, Serial
 import string_helpers
 
+
 class MainTestCase(unittest.TestCase):
 
     def runTest(self):
@@ -19,15 +20,6 @@ class MainTestCase(unittest.TestCase):
         (pos, length) = constructor._find_diff(series1, series2)
         self.assertEqual(pos, 21)
         self.assertEqual(length, 2)
-
-    def test_dd_re(self):
-        re_comp = r'0*' + str(1) + r'\D+'
-        self.assertIsNotNone(re.match(re_comp, "01. Первое знакомство.avi"))
-        self.assertIsNone(re.match(re_comp, "011. Первое знакомство.avi"))
-
-        re_comp = r'0*' + str(2) + r'\D+'
-        self.assertIsNotNone(re.match(re_comp,
-                                      "02. Тяжелое расставание.avi"))
 
     def test_construct_filename_dd_re(self):
         files = ["01. Первое знакомство.avi", "02. Тяжелое расставание.avi"]
@@ -175,7 +167,7 @@ class ConstructorTestCase(unittest.TestCase):
                  "[Commie] Haikyuu!! - 08 [13E5217D].mkv",
                  "[mohbaboo-subs] Haikyuu!! - 09 [1B080828].mkv",
                  "[mohbaboo-subs] Haikyuu!! - 10 [7FF0CBA2].mkv"]
-        constructor = Constructor(files, 1)
+        constructor = Constructor(files)
         self.assertEqual(
             constructor.construct(1),
             files[0])
@@ -184,6 +176,18 @@ class ConstructorTestCase(unittest.TestCase):
             constructor.construct(8),
             files[7])
 
+    def test_sNeNN(self):
+        files = [
+            "s5e01_The Wedding",
+            "s5e02_Six Forgotten Warriors",
+            "s5e03_Unclaimed Legacy"]
+        constructor = Constructor(files)
+        self.assertEqual(
+            constructor.construct(1),
+            files[0])
+        self.assertEqual(
+            constructor.construct(3),
+            files[2])
 
 if __name__ == "__main__":
     unittest.main()
