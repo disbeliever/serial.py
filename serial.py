@@ -53,7 +53,6 @@ class ConfigHelper():
 
 
 class Serial():
-    constructor = None
 
     def __init__(self, action, episode=0):
         self.config = ConfigHelper()
