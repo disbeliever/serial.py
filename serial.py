@@ -159,14 +159,14 @@ class Constructor():
             self.episode = episode
 
         basename = string_helpers.cmp_str(self.files[0],
-                           self.files[-1])
+                                          self.files[-1])
         if (len(basename) == 0):
             basename = string_helpers.cmp_str(self.files[self.episode - 1],
-                               self.files[self.episode])
+                                              self.files[self.episode])
 
         if (len(basename) == 0):
             basename = string_helpers.cmp_str(self.files[self.episode - 2],
-                               self.files[self.episode - 1])
+                                              self.files[self.episode - 1])
 
         regexp_string = '{0}{1}.*'.format(
             re.escape(basename.rstrip(string.digits)),
@@ -244,7 +244,8 @@ def s_play(path):
     except OSError as e:
         errstr = ""
         if e.errno == errno.ENOENT:
-            errstr = "Error: {0} - {1}\nPlease, specify another video player".format(player, e.strerror)
+            errstr = """Error: {0} - {1}\n
+Please, specify another video player""".format(player, e.strerror)
         else:
             errstr = "error: " + e.strerror
         raise Exception(errstr)
