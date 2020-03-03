@@ -140,8 +140,13 @@ class Constructor():
             return file_name
 
         # 2nd method
-        file_name = self._construct_diff_with_re()
-        if file_name in self.files:
+        file_name = self._construct_diff_with_re_forward()
+        if file_name:
+            return file_name
+
+        # 3rd method
+        file_name = self._construct_diff_with_re_backward()
+        if file_name:
             return file_name
 
     def _construct_filename_dd_re(self):
@@ -153,7 +158,32 @@ class Constructor():
             file_name = None
         return file_name
 
-    def _construct_diff_with_re(self, episode=0):
+    def _construct_diff_with_re_forward(self, episode=0):
+        # next line is for using in unit-test
+        if (episode > 0):
+            self.episode = episode
+
+        basename = string_helpers.cmp_str(self.files[0],
+                                          self.files[-1])
+        if (len(basename) == 0 and self.episode < len(self.files)):
+            basename = string_helpers.get_shared_part(self.files[self.episode - 1],
+                                                      self.files[self.episode])
+
+        if (len(basename) == 0):
+            basename = string_helpers.get_shared_part(self.files[self.episode - 2],
+                                                      self.files[self.episode - 1])
+        regexp_string = '{0}{1}.*'.format(
+            re.escape(basename.rstrip(string.digits)),
+            str(self.episode).zfill(2)
+        )
+        regexp = re.compile(regexp_string)
+        try:
+            file_name = [f for f in self.files if regexp.match(f)][0]
+            return file_name
+        except IndexError:
+            return None
+
+    def _construct_diff_with_re_backward(self, episode=0):
         # next line is for using in unit-test
         if (episode > 0):
             self.episode = episode
@@ -167,7 +197,6 @@ class Constructor():
         if (len(basename) == 0):
             basename = string_helpers.cmp_str(self.files[self.episode - 2],
                                               self.files[self.episode - 1])
-
         regexp_string = '{0}{1}.*'.format(
             re.escape(basename.rstrip(string.digits)),
             str(self.episode).zfill(2)

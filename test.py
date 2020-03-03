@@ -8,6 +8,14 @@ from serial import Constructor, Serial
 import string_helpers
 
 
+class StringHelperTestCase(unittest.TestCase):
+
+    def test_get_shared_part(self):
+        str1 = "abc123"
+        str2 = "abc456"
+        self.assertEqual(string_helpers.get_shared_part(str1, str2), "abc")
+
+
 class MainTestCase(unittest.TestCase):
 
     def runTest(self):
@@ -125,10 +133,10 @@ class ConstructorTestCase(unittest.TestCase):
             "[Raws-4U] Amagami SS - 08 (TBS 1280x720 H.264 AAC Chap).mp4"]
         constructor = Constructor(files)
         self.assertEqual(
-            constructor._construct_diff_with_re(2),
+            constructor._construct_diff_with_re_backward(2),
             files[1])
         self.assertEqual(
-            constructor._construct_diff_with_re(4),
+            constructor._construct_diff_with_re_backward(4),
             files[3])
 
     def test_find_diff_with_re_2(self):
@@ -148,12 +156,12 @@ class ConstructorTestCase(unittest.TestCase):
             ]
         constructor = Constructor(files, 15)
         self.assertEqual(
-            constructor._construct_diff_with_re(),
+            constructor._construct_diff_with_re_forward(),
             files[1])
 
         constructor = Constructor(files, 25)
         self.assertEqual(
-            constructor._construct_diff_with_re(),
+            constructor._construct_diff_with_re_forward(),
             files[-1])
 
     def test_different_raws(self):
@@ -178,9 +186,9 @@ class ConstructorTestCase(unittest.TestCase):
 
     def test_sNeNN(self):
         files = [
-            "s5e01_The Wedding",
-            "s5e02_Six Forgotten Warriors",
-            "s5e03_Unclaimed Legacy"]
+            "s5e01_The Wedding.mkv",
+            "s5e02_Six Forgotten Warriors.mkv",
+            "s5e03_Unclaimed Legacy.mkv"]
         constructor = Constructor(files)
         self.assertEqual(
             constructor.construct(1),
