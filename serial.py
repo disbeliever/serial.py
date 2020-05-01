@@ -129,23 +129,24 @@ class Constructor():
         self.episode = episode
 
         file_name = ""
+
         # 1st method
+        file_name = self._construct_diff_with_re_forward()
+        if file_name:
+            return file_name
+
+        # 2nd method
+        file_name = self._construct_diff_with_re_backward()
+        if file_name:
+            return file_name
+
+        # 3rd method
         try:
             file_name = self._construct_filename_dd_re()
         except IndexError:
             pass
         except TypeError:
             pass
-        if file_name:
-            return file_name
-
-        # 2nd method
-        file_name = self._construct_diff_with_re_forward()
-        if file_name:
-            return file_name
-
-        # 3rd method
-        file_name = self._construct_diff_with_re_backward()
         if file_name:
             return file_name
 

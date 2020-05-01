@@ -197,5 +197,37 @@ class ConstructorTestCase(unittest.TestCase):
             constructor.construct(3),
             files[2])
 
+    def test_sNNeNN(self):
+        files = [
+            "10x01 - The Conspiracy in the Corpse.avi",
+            "10x02 - The Lance to the Heart.avi",
+            "10x03 - The Purging of the Pundit.avi",
+            "10x04 - The Geek in the Guck.avi",
+            "10x05 - The Corpse at the Convention.avi",
+            "10x06 - The Lost Love in the Foreign Land.avi",
+            "10x07 - The Money Maker on the Merry-Go-Round.avi",
+            "10x08 - The Puzzler in the Pit.avi",
+            "10x09 - The Mutilation of the Master Manipulator.avi",
+            "10x10 - The 200th in the 10th.avi",
+            "10x11 - The Psychic in the Soup.avi",
+            "10x12 - The Teacher in the Books.avi",
+            "10x13 - The Baker in the Bits.avi",
+            "10x14 - The Putter in the Rough.avi",
+            "10x15 - The Eye in the Sky.avi",
+            "10x16 - The Big Beef at the Royal Diner.avi",
+            "10x17 - The Lost in the Found.avi",
+            "10x18 - The Verdict in the Victims.avi",
+            "10x19 - The Murder in the Middle East.avi",
+            "10x20 - The Woman in the Whirlpool.avi",
+            "10x21 - The Life in the Light.avi",
+            "10x22 - The Next in the Last.avi"
+        ]
+        constructor = Constructor(files)
+        for episode in range(1, len(files) + 1):
+            self.assertEqual(
+                constructor.construct(episode),
+                files[episode - 1])
+
+
 if __name__ == "__main__":
     unittest.main()
