@@ -24,7 +24,7 @@ class ConfigHelper():
         self.config = configparser.RawConfigParser()
         self.config.read(CONFIG_FILE)
 
-    def get_episode_from_db(self, show_path):
+    def get_episode_from_db(self, show_path: str) -> int:
         try:
             episode = self.config.getint('Main', show_path)
         except configparser.NoSectionError:
@@ -33,7 +33,7 @@ class ConfigHelper():
             episode = 0
         return episode
 
-    def save_episode_to_db(self, show_path, episode):
+    def save_episode_to_db(self, show_path: str, episode: int):
         try:
             self.config.add_section('Main')
         except configparser.DuplicateSectionError:
@@ -42,7 +42,7 @@ class ConfigHelper():
         with open(CONFIG_FILE, 'w') as config_file:
             self.config.write(config_file)
 
-    def get_player(self):
+    def get_player(self) -> str:
         try:
             player = self.config.get('General', 'player')
         except configparser.NoSectionError:
@@ -90,7 +90,7 @@ class Serial():
             print("Episode {0} isn't here :(".format(episode))
             sys.exit(1)
 
-    def generate_filename(self, episode):
+    def generate_filename(self, episode) -> str:
         # constructing file name (including full path)
         try:
             self.constructor = Constructor(self.files, episode)
@@ -100,7 +100,7 @@ class Serial():
             path = ''
         return path
 
-    def create_subfile_name(self, filename):
+    def create_subfile_name(self, filename) -> str:
         return os.path.splitext(filename)[0] + ".ass"
 
     def create_subtitle_symlink(self, episode):
@@ -149,7 +149,7 @@ class Constructor():
         if file_name:
             return file_name
 
-    def _construct_filename_dd_re(self):
+    def _construct_filename_dd_re(self) -> str:
         re_comp = re.compile(r'0*' + str(self.episode) + r'.+')
         try:
             file_name = [re_comp.match(i) for i in self.files
@@ -158,7 +158,7 @@ class Constructor():
             file_name = None
         return file_name
 
-    def _construct_diff_with_re_forward(self, episode=0):
+    def _construct_diff_with_re_forward(self, episode=0) -> str:
         # next line is for using in unit-test
         if (episode > 0):
             self.episode = episode
@@ -183,7 +183,7 @@ class Constructor():
         except IndexError:
             return None
 
-    def _construct_diff_with_re_backward(self, episode=0):
+    def _construct_diff_with_re_backward(self, episode=0) -> str:
         # next line is for using in unit-test
         if (episode > 0):
             self.episode = episode
@@ -208,7 +208,7 @@ class Constructor():
         else:
             return None
 
-    def _construct_filename_find_diff(self):
+    def _construct_filename_find_diff(self) -> str:
         """
         Конструируем имя файла на основе поиска разницы.
         Работает для случаев вроде:
