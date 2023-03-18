@@ -77,7 +77,7 @@ class Serial():
         elif action == 'set':
             self.episode = episode
             self._s_play_episode(self.episode)
-            self.config.save_episode_to_db()
+            self.config.save_episode_to_db(self.cwd, self.episode)
 
     def _s_play_episode(self, episode):
         """Plays the episode with given number"""
@@ -322,6 +322,7 @@ def main():
     except Exception as e:
         print(e)
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())
